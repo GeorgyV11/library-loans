@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Выдача {{ loan.id }}{% endblock %}
+{% block content %}
+<h2>Выдача № {{ loan.id }}</h2>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<table>
+  <tr><th>Книга</th><td>{{ loan.book.title }} — {{ loan.book.author }}, {{ loan.book.year }} (ISBN {{ loan.book.isbn }})</td></tr>
+  <tr><th>Экземпляр</th><td>{{ loan.copy.inventory_no }}, полка {{ loan.copy.shelf }}</td></tr>
+  <tr><th>Читатель</th><td><a href="/readers/{{ loan.reader.id }}">{{ loan.reader.full_name }}</a>, {{ loan.reader.email }} · на руках: {{ loan.reader.loans_on_hand }}</td></tr>
+  <tr><th>Выдана</th><td>{{ loan.issued_on }}{% if loan.issued_by %} ({{ loan.issued_by }}){% endif %}</td></tr>
+  <tr><th>Срок возврата</th><td>{{ loan.due_on }}</td></tr>
+  <tr><th>Возвращена</th><td>{{ loan.returned_on or "на руках" }}</td></tr>
+  <tr><th>Просрочка</th><td {% if loan.overdue_days %}class="overdue"{% endif %}>{{ loan.overdue_days }} дн., штраф {{ loan.fine }} руб.</td></tr>
+</table>
+{% if not loan.returned_on %}
+<form method="post" action="/loans/{{ loan.id }}/return"><p><button>Принять возврат сегодня</button></p></form>
+{% endif %}
+{% endblock %}

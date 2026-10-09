@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ reader.full_name }}{% endblock %}
+{% block content %}
+<h2>{{ reader.full_name }}</h2>
+<p>Читатель № {{ reader.id }} · {{ reader.email }} · {{ reader.phone }} · с {{ reader.registered_on }}</p>
+<p>На руках: {{ reader.on_hand }}{% if reader.has_overdue %} · <span class="overdue">есть просрочка — выдача запрещена</span>{% endif %}</p>
+<table>
+  <tr><th>№</th><th>Книга</th><th>Экземпляр</th><th>Выдана</th><th>Срок</th><th>Возвращена</th><th>Штраф</th></tr>
+  {% for l in reader.loans %}
+  <tr>
+    <td><a href="/loans/{{ l.id }}">{{ l.id }}</a></td>
+    <td>{{ l.title }} — {{ l.author }}</td>
+    <td>{{ l.inventory_no }}</td>
+    <td>{{ l.issued_on }}</td><td>{{ l.due_on }}</td><td>{{ l.returned_on or "—" }}</td>
+    <td {% if l.overdue %}class="overdue"{% endif %}>{{ l.fine or "" }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

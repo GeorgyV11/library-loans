@@ -1,0 +1,35 @@
+name: georgii_valiaikin
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: library
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_DB: georgii_valiaikin
+    ports:
+      - "${DB_PORT:-25432}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U library -d georgii_valiaikin"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://library:${DB_PASSWORD:-changeme}@db:5432/georgii_valiaikin
+      DB_SCHEMA: georgii_valiaikin
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-10}
+      SECRET_KEY: ${SECRET_KEY:-changeme}
+    ports:
+      - "${APP_PORT:-8080}:8000"
+    volumes:
+      - .:/srv
+    depends_on:
+      db: {condition: service_healthy}
+
+volumes:
+  db-data:

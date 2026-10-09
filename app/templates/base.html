@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Библиотека{% endblock %} · {{ prefix }}</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0 auto; max-width: 1100px; padding: 0 16px 32px; }
+    header { display: flex; gap: 16px; align-items: center; border-bottom: 1px solid #ccc; padding: 10px 0; margin-bottom: 16px; }
+    header .who { margin-left: auto; color: #555; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; }
+    th { background: #f2f2f2; }
+    .overdue { color: #b00020; font-weight: 600; }
+    .error { color: #b00020; }
+    .muted { color: #777; }
+    form.inline { display: inline; }
+    .pager a, .pager span { margin-right: 6px; }
+  </style>
+</head>
+<body>
+<header>
+  <strong>Библиотека</strong>
+  {% if user %}
+    <a href="/loans">Выдачи</a>
+    <a href="/loans/new">Выдать книгу</a>
+    <a href="/summary">Сводка</a>
+    <span class="who">{{ user.name }} ({{ user.login }}) · {{ prefix }}</span>
+    <form class="inline" method="post" action="/logout"><button>Выйти</button></form>
+  {% endif %}
+</header>
+{% block content %}{% endblock %}
+</body>
+</html>
