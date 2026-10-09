@@ -83,9 +83,15 @@ def return_(loan_id: int, body: ReturnIn | None = None, user=Depends(current_use
 
 
 @router.get("/readers/{reader_id}")
-def reader(reader_id: int, user=Depends(current_user), db=Depends(get_db)):
+def reader(
+    reader_id: int,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+    user=Depends(current_user),
+    db=Depends(get_db),
+):
     try:
-        return repo.get_reader(db, reader_id)
+        return repo.get_reader(db, reader_id, page, size)
     except repo.NotFound as e:
         raise HTTPException(status_code=404, detail=str(e))
 

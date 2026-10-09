@@ -79,10 +79,19 @@ def get_loan(db, loan_id):
     return {**_loan_view(loan), "reader": reader, "copy": copy, "book": book}
 
 
-def get_reader(db, reader_id):
+def get_reader(db, reader_id, page=1, size=20):
     reader = db.one("SELECT * FROM reader WHERE id = %s", (reader_id,))
     if reader is None:
         raise NotFound("читатель не найден")
+    counts = db.one(
+        """
+        SELECT count(*) AS loans_total,
+               count(*) FILTER (WHERE returned_on IS NULL) AS on_hand,
+               count(*) FILTER (WHERE returned_on IS NULL AND due_on < current_date) AS overdue
+        FROM loan WHERE reader_id = %s
+        """,
+        (reader_id,),
+    )
     loans = db.execute(
         """
         SELECT l.id, l.issued_on, l.due_on, l.returned_on, c.inventory_no, b.title, b.author
@@ -90,16 +99,19 @@ def get_reader(db, reader_id):
         JOIN copy c ON c.id = l.copy_id
         JOIN book b ON b.id = c.book_id
         WHERE l.reader_id = %s
-        ORDER BY l.issued_on DESC
+        ORDER BY l.issued_on DESC, l.id DESC
+        LIMIT %s OFFSET %s
         """,
-        (reader_id,),
+        (reader_id, size, (page - 1) * size),
     )
-    loans = [_loan_view(l) for l in loans]
     return {
         **reader,
-        "loans": loans,
-        "on_hand": sum(1 for l in loans if l["returned_on"] is None),
-        "has_overdue": any(l["overdue"] for l in loans),
+        "loans": [_loan_view(l) for l in loans],
+        "loans_total": counts["loans_total"],
+        "page": page,
+        "size": size,
+        "on_hand": counts["on_hand"],
+        "has_overdue": counts["overdue"] > 0,
     }
 
 

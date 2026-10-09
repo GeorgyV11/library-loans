@@ -102,14 +102,15 @@ def return_(request: Request, loan_id: int, db=Depends(get_db)):
 
 
 @router.get("/readers/{reader_id}", response_class=HTMLResponse)
-def reader(request: Request, reader_id: int, db=Depends(get_db)):
+def reader(request: Request, reader_id: int, page_no: int = 1, db=Depends(get_db)):
     if r := need_login(request):
         return r
     try:
-        data = repo.get_reader(db, reader_id)
+        data = repo.get_reader(db, reader_id, max(page_no, 1), 20)
     except repo.NotFound:
         return page(request, "error.html", message="Читатель не найден")
-    return page(request, "reader.html", reader=data)
+    pages = max(1, -(-data["loans_total"] // 20))
+    return page(request, "reader.html", reader=data, pages=pages)
 
 
 @router.get("/summary", response_class=HTMLResponse)

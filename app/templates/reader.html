@@ -16,4 +16,10 @@
   </tr>
   {% endfor %}
 </table>
+<p class="pager">
+  Всего выдач: {{ reader.loans_total }}.
+  {% if reader.page > 1 %}<a href="?page_no={{ reader.page - 1 }}">← назад</a>{% endif %}
+  <span>{{ reader.page }} / {{ pages }}</span>
+  {% if reader.page < pages %}<a href="?page_no={{ reader.page + 1 }}">вперёд →</a>{% endif %}
+</p>
 {% endblock %}

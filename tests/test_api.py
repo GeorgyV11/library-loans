@@ -52,6 +52,13 @@ def test_summary_fields(client, authorized_client):
     assert loans == sorted(loans, reverse=True)
 
 
+def test_reader_card_is_paginated(client, authorized_client):
+    body = authorized_client.get("/api/readers/1?page=1&size=5").json()
+    assert len(body["loans"]) <= 5
+    assert body["loans_total"] >= len(body["loans"])
+    assert {"on_hand", "has_overdue", "page", "size"} <= body.keys()
+
+
 def _free_copy_and_clean_reader(c):
     """Свободный экземпляр и читатель без просрочки из малого наполнения."""
     busy = {l["copy_id"] for l in c.get("/api/loans?status=active&size=100").json()["items"]}
