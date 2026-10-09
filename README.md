@@ -13,8 +13,8 @@
 
 ## Установка и запуск
 
-    git clone https://github.com/GeorgyV11/georgii_valiaikin-library.git
-    cd georgii_valiaikin-library
+    git clone https://github.com/GeorgyV11/library-loans.git
+    cd library-loans
     cp .env.example .env
     docker compose up -d --build
     docker compose exec api python -m app.seed small
